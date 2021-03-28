@@ -5,7 +5,6 @@ import cats.syntax.all._
 import cats.effect._
 
 import io.circe._
-import io.circe.generic.semiauto._
 import io.circe.syntax._
 
 import org.http4s._
@@ -23,9 +22,8 @@ import com.rdoczi.template.app.query._
 import com.rdoczi.template.app._
 import com.rdoczi.template.domain._
 
-case class GetTemplateResponse(id: UUID, name: String, template: String, schema: Map[String, SchemaRule])
+case class GetTemplateResponse(id: UUID, name: String, template: String, schema: Map[String, SchemaRule]) derives Encoder.AsObject
 object GetTemplateResponse:
-  given Encoder[GetTemplateResponse] = deriveEncoder
   given [F[_]]: EntityEncoder[F, GetTemplateResponse] = jsonEncoderOf[F, GetTemplateResponse]
 
   def fromDomain(template: Template): GetTemplateResponse = 
@@ -39,40 +37,33 @@ object GetTemplateResponse:
         .toMap
     GetTemplateResponse(template.id, template.name, template.template, schema)
 
-case class ListTemplateResponse(templates: List[GetTemplateResponse])
+case class ListTemplateResponse(templates: List[GetTemplateResponse]) derives Encoder.AsObject
 object ListTemplateResponse:
-  given Encoder[ListTemplateResponse] = deriveEncoder
   given [F[_]]: EntityEncoder[F, ListTemplateResponse] = jsonEncoderOf[F, ListTemplateResponse]
 
   def fromDomain(templates: List[Template]): ListTemplateResponse = 
     ListTemplateResponse(templates.map(GetTemplateResponse.fromDomain))
 
-case class GetRenderedTemplateResponse(rendered: String)
+case class GetRenderedTemplateResponse(rendered: String) derives Encoder.AsObject
 object GetRenderedTemplateResponse:
-  given Encoder[GetRenderedTemplateResponse] = deriveEncoder
   given [F[_]]: EntityEncoder[F, GetRenderedTemplateResponse] = jsonEncoderOf[F, GetRenderedTemplateResponse]
 
-case class GetRenderedTemplateRequest(params: Map[String, String]):
+case class GetRenderedTemplateRequest(params: Map[String, String]) derives Decoder:
   def toCommand(id: UUID): GetRenderedTemplate = GetRenderedTemplate(id, params)
 
 object GetRenderedTemplateRequest:
-  given Decoder[GetRenderedTemplateRequest] = deriveDecoder
   given [F[_]: Concurrent]: EntityDecoder[F, GetRenderedTemplateRequest] = jsonOf[F, GetRenderedTemplateRequest]
 
-case class CreateTemplateRequest(name: String, template: String, schema: Map[String, SchemaRule]):
+case class CreateTemplateRequest(name: String, template: String, schema: Map[String, SchemaRule]) derives Decoder:
   def toCommand(id: UUID): AddTemplate = 
     val appSchema = schema.map{ case ((name, rule)) => (name, AppSchemaRule(rule.`type`, rule.values)) }
     AddTemplate(id, name, template, appSchema)
 
 object CreateTemplateRequest:
-  given Decoder[CreateTemplateRequest] = deriveDecoder
   given [F[_]: Concurrent]: EntityDecoder[F, CreateTemplateRequest] = jsonOf[F, CreateTemplateRequest]
   
 
-case class SchemaRule(`type`: String, values: Option[List[String]])
-object SchemaRule:
-  given Decoder[SchemaRule] = deriveDecoder
-  given Encoder[SchemaRule] = deriveEncoder
+case class SchemaRule(`type`: String, values: Option[List[String]]) derives Codec.AsObject
 
 class TemplateRoutes[F[_]: Concurrent](app: App[F]):
   val routes: HttpRoutes[F] =
