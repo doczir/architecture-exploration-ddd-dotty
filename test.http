@@ -1,0 +1,53 @@
+@host = localhost
+@port = 9999
+@schema = http
+@uri = {{schema}}://{{host}}:{{port}}
+@id = caa4cbb3-9ce3-45d7-988e-fd1d02304caa
+
+POST {{uri}}/template/create HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "Hello choice",
+  "template": "select [[email]] as email;",
+  "schema": {
+    "email": {
+      "type": "choice",
+      "values": ["example1@example.com", "example1@example.com"]
+    }
+  }
+}
+
+###
+
+POST {{uri}}/template/create HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "Hello number",
+  "template": "select [[email]] as email;",
+  "schema": {
+    "email": {
+      "type": "number"
+    }
+  }
+}
+
+###
+
+GET {{uri}}/template HTTP/1.1
+
+###
+
+GET {{uri}}/template/{{id}} HTTP/1.1
+
+###
+
+POST {{uri}}/template/{{id}}/render HTTP/1.1
+Content-Type: application/json
+
+{
+  "params": {
+    "email": "12"
+  }
+}
