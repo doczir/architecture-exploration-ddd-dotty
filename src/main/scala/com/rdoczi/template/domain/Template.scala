@@ -20,34 +20,35 @@ enum RenderError:
   case UnexpectedReplacement(value: String)
 
 extension (template: Template)
-  def validate(parameters: Map[String, String]): Either[RenderError, Replacements] = 
-    parameters.foldLeft(Right(Replacements.empty): Either[RenderError, Replacements]) { 
+  def validate(parameters: Map[String, String]): Either[RenderError, Replacements] =
+    parameters.foldLeft(Right(Replacements.empty): Either[RenderError, Replacements]) {
       case (Right(replacements), (name, value)) =>
-        template.schema.rules.find(rule => rule.name == name)
+        template.schema.rules
+          .find(rule => rule.name == name)
           .toRight(RenderError.UnexpectedReplacement(name))
-          .flatMap { rule => 
-            rule.tpe match {
+          .flatMap { rule =>
+            rule.tpe match
               case SchemaType.Text =>
                 Right(replacements.add(name, Replacement.TextReplacement(value)))
-              case SchemaType.Number if value.toFloatOption.isDefined => 
+              case SchemaType.Number if value.toFloatOption.isDefined =>
                 Right(replacements.add(name, Replacement.NumericReplacement(value)))
-              case SchemaType.Number => 
+              case SchemaType.Number =>
                 Left(RenderError.InvalidNumber(value))
-              case SchemaType.Choice(values) if values.contains(value) => 
+              case SchemaType.Choice(values) if values.contains(value) =>
                 Right(replacements.add(name, Replacement.TextReplacement(value)))
               case SchemaType.Choice(values) =>
                 Left(RenderError.InvalidChoice(value, values))
-                
-            }
+
           }
 
       case (error, _) => error
     }
 
-  def render(replacements: Replacements): String = 
+  def render(replacements: Replacements): String =
     replacements.foldL[String](template.template) { case (tempalte, name, replacement) =>
-       tempalte.replace(s"[[$name]]", replacement.toRendered)
+      tempalte.replace(s"[[$name]]", replacement.toRendered)
     }
+end extension
 
 private[domain] opaque type Replacements = Map[String, Replacement]
 object Replacements:
@@ -57,9 +58,8 @@ extension (replacements: Replacements)
   def add(name: String, replacement: Replacement): Replacements =
     replacements + (name -> replacement)
   def foldL[A](a: A)(fn: (A, String, Replacement) => A): A =
-    replacements.foldLeft[A](a) { 
-      case (acc, (name, replacement)) => 
-        fn(acc, name, replacement) 
+    replacements.foldLeft[A](a) { case (acc, (name, replacement)) =>
+      fn(acc, name, replacement)
     }
 
 private[domain] enum Replacement:
@@ -67,8 +67,7 @@ private[domain] enum Replacement:
   case NumericReplacement(value: String)
 
 extension (replacement: Replacement)
-  def toRendered: String = 
-    replacement match {
-      case Replacement.TextReplacement(value) => s""""$value""""
+  def toRendered: String =
+    replacement match
+      case Replacement.TextReplacement(value)    => s""""$value""""
       case Replacement.NumericReplacement(value) => value
-    }
