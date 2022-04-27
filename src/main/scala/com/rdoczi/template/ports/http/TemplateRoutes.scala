@@ -24,7 +24,7 @@ import com.rdoczi.template.domain._
 
 case class GetTemplateResponse(id: UUID, name: String, template: String, schema: Map[String, SchemaRule]) derives Encoder.AsObject
 object GetTemplateResponse:
-  given [F[_]]: EntityEncoder[F, GetTemplateResponse] = jsonEncoderOf[F, GetTemplateResponse]
+  given EntityEncoder.Pure[GetTemplateResponse] = jsonEncoderOf[GetTemplateResponse]
 
   def fromDomain(template: Template): GetTemplateResponse = 
     val schema = 
@@ -39,14 +39,14 @@ object GetTemplateResponse:
 
 case class ListTemplateResponse(templates: List[GetTemplateResponse]) derives Encoder.AsObject
 object ListTemplateResponse:
-  given [F[_]]: EntityEncoder[F, ListTemplateResponse] = jsonEncoderOf[F, ListTemplateResponse]
+  given EntityEncoder.Pure[ListTemplateResponse] = jsonEncoderOf[ListTemplateResponse]
 
   def fromDomain(templates: List[Template]): ListTemplateResponse = 
     ListTemplateResponse(templates.map(GetTemplateResponse.fromDomain))
 
 case class GetRenderedTemplateResponse(rendered: String) derives Encoder.AsObject
 object GetRenderedTemplateResponse:
-  given [F[_]]: EntityEncoder[F, GetRenderedTemplateResponse] = jsonEncoderOf[F, GetRenderedTemplateResponse]
+  given EntityEncoder.Pure[GetRenderedTemplateResponse] = jsonEncoderOf[GetRenderedTemplateResponse]
 
 case class GetRenderedTemplateRequest(params: Map[String, String]) derives Decoder:
   def toCommand(id: UUID): GetRenderedTemplate = GetRenderedTemplate(id, params)
@@ -89,7 +89,9 @@ class TemplateRoutes[F[_]: Concurrent](app: App[F]):
         for
           getRenderedTemplateRequest <- req.as[GetRenderedTemplateRequest]
           getRenderedTemplate = getRenderedTemplateRequest.toCommand(id)
+
           renderedO <- app.queries.getRenderedTemplate.handle(getRenderedTemplate)
+
           resp <- renderedO match {
             case Some(Right(rendered)) => Ok(rendered)
             case Some(Left(error)) => BadRequest(error.toString)
@@ -103,6 +105,6 @@ class TemplateRoutes[F[_]: Concurrent](app: App[F]):
           id = UUID.randomUUID
           addTemplate = createTemplateRequest.toCommand(id)
           _ <- app.commands.addTemplate.handle(addTemplate)
-          resp <- Created(headers = `Content-Location`.parse(s"/template/${id.toString}"))
+          resp <- Created()
         yield resp
     }
