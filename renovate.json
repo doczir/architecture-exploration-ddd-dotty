@@ -8,10 +8,10 @@
     {
       "matchUpdateTypes": ["minor", "patch"],
       "matchCurrentVersion": "!/^0/",
-      "automerge": true,
+      "automerge": true
     },
     {
-      "matchPackagePatterns": ["cats"],
+      "matchPackagePatterns": [".*cats.*"],
       "allowedVersions": "/\\d+\\.\\d+.\\d+/" 
     }
   ]
