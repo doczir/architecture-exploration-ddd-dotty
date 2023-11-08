@@ -10,7 +10,7 @@
       "automerge": true
     },
     {
-      "matchPackageNames": ["cats"],
+      "matchPackagePatterns": ["cats"],
       "allowedVersions": "\\d+\\.\\d+.\\d+" 
     }
   ]
