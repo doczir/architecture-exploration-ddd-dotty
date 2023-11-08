@@ -12,7 +12,7 @@ lazy val root = project
     scalaVersion := scala3Version,
 
     libraryDependencies ++= Seq(
-      "org.typelevel" %% "cats-effect" % "3.3.11",
+      "org.typelevel" %% "cats-effect" % "3.6-0142603",
       "org.http4s"      %% "http4s-blaze-server" % Http4sVersion,
       "org.http4s"      %% "http4s-blaze-client" % Http4sVersion,
       "org.http4s"      %% "http4s-circe"        % Http4sVersion,
