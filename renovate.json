@@ -11,7 +11,7 @@
     },
     {
       "matchPackagePatterns": ["cats"],
-      "allowedVersions": "\\d+\\.\\d+.\\d+" 
+      "allowedVersions": "/\\d+\\.\\d+.\\d+/" 
     }
   ]
 }
