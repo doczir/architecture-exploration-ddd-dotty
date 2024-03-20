@@ -18,6 +18,6 @@ lazy val root = project
       "org.http4s"      %% "http4s-circe"        % Http4sVersion,
       "org.http4s"      %% "http4s-dsl"          % Http4sVersion,
       "io.circe"        %% "circe-generic"       % CirceVersion,
-      "ch.qos.logback"   % "logback-classic"     % "1.5.1"
+      "ch.qos.logback"   % "logback-classic"     % "1.5.3"
     )
   )
