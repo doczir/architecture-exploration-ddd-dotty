@@ -1,4 +1,4 @@
-val scala3Version = "3.5.1"
+val scala3Version = "3.5.2"
 
 val Http4sVersion = "1.0.0-M42"
 val CirceVersion = "0.14.6"
