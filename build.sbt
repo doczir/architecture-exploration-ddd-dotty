@@ -1,7 +1,7 @@
 val scala3Version = "3.9.0"
 
 val Http4sVersion = "1.0.0-M47"
-val CirceVersion = "0.14.6"
+val CirceVersion = "0.14.16"
 
 lazy val root = project
   .in(file("."))
